@@ -34,14 +34,15 @@ def main():
         conn, _ = sock.accept()
 
         try:
-            while True:
-                data = conn.recv(4096)
+            data = conn.recv(4096)
+            t = data.decode('ascii')
 
-                if len(data):
-                    t = data.decode('ascii')
-                    logger("{} {}".format("received", t))
-                else:
-                    break
+            if len(data):
+                logger("{} {}".format("received", repr(t)))
+                if t == "req":
+                    conn.send(b'ACK')
+            else:
+                break
         finally:
             conn.close()
 
