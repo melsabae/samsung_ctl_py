@@ -1,15 +1,35 @@
 #!/usr/bin/env python3
 
+import socket
+import sys
 import os
-import select
+import logging
 
-pipe_name = "samsung_ctl"
+logger = print
 
-os.mkfifo(pipe_name) if not os.path.exists(pipe_name) else ()
+serv = "./samsung_ctl"
+os.unlink(serv) if os.path.exists(serv) else {}
 
-while True:
-    with open(pipe_name, "r") as pipe:
-        dat = pipe.readline()
-        #convert = list(map(lambda _: _.strip(), dat))
-        convert = dat.strip()
-        print(dat)
+logger("{}".format("creating socket"))
+sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+logger("{}".format("binding socket"))
+sock.bind(serv)
+sock.listen()
+
+if __name__ == "__main__":
+    while True:
+        logger("waiting on connection")
+        conn, client = sock.accept()
+
+        try:
+            logger ("{} {}".format("connection from", client))
+            while True:
+                data = conn.recv(4096)
+
+                if len(data):
+                    t = data.decode('ascii')
+                    logger("{} {}".format("received", t))
+                else:
+                    break
+        finally:
+            conn.close()
