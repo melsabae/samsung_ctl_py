@@ -6,22 +6,21 @@ import sys
 import os
 import logging
 import signal
-import actions as sa
+from functools import partial as p
+import actions as act
+
 
 logger = print
 
-tal = list(
-        (("set", _, __, sa.get_file_path(_)), lambda: sa.update_value(_, __)) for _ in sa.ux for __ in sa.get_control_values(_)
-        )
-ga = list(zip([("get", _) for _ in sa.ux], [lambda: sa.get_current_value(_) for _ in sa.ux]))
-print(ga[0][0], repr(ga[0][1]()))
-sys.exit(0)
-
-
-ga = list(zip([("get", _) for _ in sa.ux], [lambda: sa.get_current_value(_) for _ in sa.ux]))
-ca = list(zip([("cyc", _) for _ in sa.ux], [lambda: sa.cycle_value(_) for _ in sa.ux]))
-sa = [(("set", _, __), lambda: sa.update_value(_, __)) for _ in sa.ux for __ in sa.get_control_values(_)]
+ga = list((("get", _), p(act.get_current_value, c=_)) for _ in act.ux)
+ca = list((("cyc", _), p(act.cycle_value, c=_)) for _ in act.ux)
+sa = [(("set", _, __), p(act.update_value, l=_, v=__)) for _ in act.ux for __ in act.get_control_values(_)]
 am = { k: v for (k,v) in ga + ca + sa }
+
+#list(map(lambda _: print(_, am[_]), am))
+#print('\n\n', ga[0], ga[0][1]())
+#sys.exit(0)
+
 
 
 def sig_handler(signum, frame):

@@ -29,7 +29,7 @@ ux = {
         "cpu": "performance_level",
         "usb": "usb_charge",
         "wifi": "wifi",
-        "bt": "bluteooth",
+        "bt": "blueteooth",
         }
 
 
