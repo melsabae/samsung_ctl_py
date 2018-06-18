@@ -13,4 +13,4 @@ sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
 if __name__ == "__main__":
     sock.connect(serv)
-    sock.send(b'ahoy, matey!')
+    sock.send(bytes("get cpu".encode('utf-8')k)
