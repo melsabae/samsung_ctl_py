@@ -13,17 +13,23 @@ _filepaths = {
         #"performance_level": "/sys/devices/platform/samsung/performance_level",
         #"usb_charge": "/sys/devices/platform/samsung/usb_charge",
         "performance_level": "./cpu",
-        "usb_charge": "./usb"
+        "usb_charge": "./usb",
+        "wifi": "./wifi",
+        "bluetooth": "./bt",
         }
 
 _controls = {
         "performance_level": ["silent", "normal", "overclock"],
         "usb_charge": ["0", "1"],
+        "wifi": ["on", "off"],
+        "bluetooth": ["on", "off"],
         }
 
 ux = {
         "cpu": "performance_level",
         "usb": "usb_charge",
+        "wifi": "wifi",
+        "bt": "bluteooth",
         }
 
 

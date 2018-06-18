@@ -72,7 +72,6 @@ def main():
 
             if c not in am:
                 conn.send(b'NACK')
-
         finally:
             conn.close()
 
