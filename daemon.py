@@ -13,28 +13,15 @@ logger = print
 tal = list(
         (("set", _, __, sa.get_file_path(_)), lambda: sa.update_value(_, __)) for _ in sa.ux for __ in sa.get_control_values(_)
         )
-
 ga = list(zip([("get", _) for _ in sa.ux], [lambda: sa.get_current_value(_) for _ in sa.ux]))
 print(ga[0][0], repr(ga[0][1]()))
-
 sys.exit(0)
+
 
 ga = list(zip([("get", _) for _ in sa.ux], [lambda: sa.get_current_value(_) for _ in sa.ux]))
 ca = list(zip([("cyc", _) for _ in sa.ux], [lambda: sa.cycle_value(_) for _ in sa.ux]))
 sa = [(("set", _, __), lambda: sa.update_value(_, __)) for _ in sa.ux for __ in sa.get_control_values(_)]
 am = { k: v for (k,v) in ga + ca + sa }
-
-get_actions = {
-        ("get", _): (lambda: sa.get_current_value(_)) for _ in sa.ux
-        }
-
-cyc_actions = {
-        ("cyc", _): (lambda: sa.cycle_value(_)) for _ in sa.ux
-        }
-
-set_actions = {
-        ("set", _, __): (lambda: sa.update_value(_, __)) for _ in sa.ux for __ in sa.get_control_values(_)
-        }
 
 
 def sig_handler(signum, frame):
@@ -46,6 +33,7 @@ def sig_handler(signum, frame):
 
 def main():
     global sock
+    global am
 
     serv = "./samsung_ctl"
     os.unlink(serv) if os.path.exists(serv) else {}
@@ -81,7 +69,8 @@ def main():
                 # res = am[c]()
                 # conn.send( bytes( res.encode( 'utf-8' )))
                 pass
-            else:
+
+            if c not in am:
                 conn.send(b'NACK')
 
         finally:
