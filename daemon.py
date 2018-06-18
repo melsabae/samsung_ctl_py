@@ -12,15 +12,17 @@ import actions as act
 
 logger = print
 
+"""
+Command format: {get, set, cyc} {_ in ux} ["set" parameter]
+"""
 ga = list((("get", _), p(act.get_current_value, c=_)) for _ in act.ux)
 ca = list((("cyc", _), p(act.cycle_value, c=_)) for _ in act.ux)
-sa = [(("set", _, __), p(act.update_value, l=_, v=__)) for _ in act.ux for __ in act.get_control_values(_)]
+sa = [(("set", _, __), p(act.update_value, c=_, v=__)) for _ in act.ux for __ in act.get_control_values(_)]
 am = { k: v for (k,v) in ga + ca + sa }
 
-#list(map(lambda _: print(_, am[_]), am))
-#print('\n\n', ga[0], ga[0][1]())
-#sys.exit(0)
 
+def get_action(i):
+    return am[i] if i in am else lambda: "NACK"
 
 
 def sig_handler(signum, frame):
@@ -45,32 +47,13 @@ def main():
 
     while True:
         conn, _ = sock.accept()
-
-        """
-        Command format: {get, set, cyc} {_ in ux} ["set" parameter]
-        """
-
         try:
             data = conn.recv(4096)
-
-            # convert byte data into string-based command set
-            # split the words into strings
-            # then convert to a tuple, which makes a key in the action map
-
-            t = data.decode('uft-8')  # ascii might be choice
-            c = tuple( t.split() )
-
-            logger("{} {}".format("received", repr(t)))
-
-            if c in am:
-                # run the command, sending back the result
-                # along the lines of
-                # res = am[c]()
-                # conn.send( bytes( res.encode( 'utf-8' )))
-                pass
-
-            if c not in am:
-                conn.send(b'NACK')
+            c = tuple( data.decode('utf-8').split() )
+            action = get_action(c)
+            res = action()
+            conn.send( bytes( res.encode( 'utf-8' )))
+            logger("recv: {}, send: {}".format(repr(c), repr(res)))
         finally:
             conn.close()
 
