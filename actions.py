@@ -44,8 +44,7 @@ def get_current_value(c: str) -> str:
 
 
 def update_value(c: str, v: str) -> bool:
-    fp = get_file_path(c)
-    return io.open(fp, "w").write(v) == len(v)
+    return v if io.open(get_file_path(c), "w").write(v) == len(v) else repr(False)
 
 
 def cycle_value(c: str) -> bool:
