@@ -33,35 +33,32 @@ ux = {
         }
 
 
-def get_file_path(c: str) -> str:
+def _get_file_path(c: str) -> str:
     return _filepaths[ux[c]]
+
+
+def _get_next_in_cycle(l: [str], c: str) -> str:
+    return l[(l.index(c) + 1) % len(l)]
 
 
 def get_control_values(c: str) -> [str]:
     return _controls[ux[c]]
 
 
-def get_next_in_cycle(l: [str], c: str) -> str:
-    return l[(l.index(c) + 1) % len(l)]
-
-
 def get_current_value(c: str) -> str:
     # TODO: for controls that do not have files or cannot find
     #  push this function's decisions into a new function that returns the proper action
     #  and keep the return as a string
-    return io.open(get_file_path(c), "r").readline().strip()
+    return io.open(_get_file_path(c), "r").readline().strip()
 
 
 def update_value(c: str, v: str) -> bool:
     # TODO: for controls that do not have files or cannot find
     #  push this function's decisions into a new function that returns the proper action
     #  and keep the return as a string
-    return v if io.open(get_file_path(c), "w").write(v) == len(v) else repr(False)
+    return v if io.open(_get_file_path(c), "w").write(v) == len(v) else repr(False)
 
 
 def cycle_value(c: str) -> bool:
-    cv = get_control_values(c)
-    curr = get_current_value(c)
-    n = get_next_in_cycle(cv, curr)
-    return update_value(c, n)
+    return  update_value(c, _get_next_in_cycle(get_control_values(c), get_current_value(c)))
 
