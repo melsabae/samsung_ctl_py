@@ -15,11 +15,12 @@ logger = print
 """
 Command format: {get, set, cyc} {_ in ux} ["set" parameter]
 """
-am = { k:v for (k, v) in chain.from_iterable(zip(
-        ((("get", _), p(act.get_current_value, c=_)) for _ in act.ux)
-        , ((("cyc", _), p(act.cycle_value, c=_)) for _ in act.ux)
-        , ((("set", _, __), p(act.update_value, c=_, v=__)) for _ in act.ux for __ in act.get_control_values(_))
-    ))
+am = {
+        k:v for (k, v) in chain(
+            ((("get", _), p(act.get_current_value, c=_)) for _ in act.ux)
+            , ((("cyc", _), p(act.cycle_value, c=_)) for _ in act.ux)
+            , ((("set", _, __), p(act.update_value, c=_, v=__)) for _ in act.ux for __ in act.get_control_values(_))
+        )
 }
 
 print(am)
