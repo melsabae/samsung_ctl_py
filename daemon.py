@@ -8,17 +8,21 @@ import logging
 import signal
 from functools import partial as p
 import actions as act
-
+from itertools import chain
 
 logger = print
 
 """
 Command format: {get, set, cyc} {_ in ux} ["set" parameter]
 """
-ga = list((("get", _), p(act.get_current_value, c=_)) for _ in act.ux)
-ca = list((("cyc", _), p(act.cycle_value, c=_)) for _ in act.ux)
-sa = [(("set", _, __), p(act.update_value, c=_, v=__)) for _ in act.ux for __ in act.get_control_values(_)]
-am = { k: v for (k,v) in ga + ca + sa }
+am = { k:v for (k, v) in chain.from_iterable(zip(
+        ((("get", _), p(act.get_current_value, c=_)) for _ in act.ux)
+        , ((("cyc", _), p(act.cycle_value, c=_)) for _ in act.ux)
+        , ((("set", _, __), p(act.update_value, c=_, v=__)) for _ in act.ux for __ in act.get_control_values(_))
+    ))
+}
+
+print(am)
 
 
 def get_action(i):
