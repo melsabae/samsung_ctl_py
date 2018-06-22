@@ -10,7 +10,9 @@ from functools import partial as p
 import actions as act
 from itertools import chain
 
+
 logger = print
+
 
 """
 Command format: {get, set, cyc} {_ in ux} ["set" parameter]
@@ -22,8 +24,6 @@ am = {
             , ((("set", _, __), p(act.update_value, c=_, v=__)) for _ in act.ux for __ in act.get_control_values(_))
         )
 }
-
-print(am)
 
 
 def get_action(i):
@@ -54,10 +54,9 @@ def main():
         conn, _ = sock.accept()
         try:
             data = conn.recv(4096)
-            c = tuple( data.decode('utf-8').split() )
-            action = get_action(c)
-            res = action()
-            conn.send( bytes( res.encode( 'utf-8' )))
+            c = tuple(data.decode('utf-8').split())
+            res = get_action(c)()
+            conn.send(bytes(res.encode('utf-8')))
             logger("recv: {}, send: {}".format(repr(c), repr(res)))
         finally:
             conn.close()
