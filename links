@@ -1,0 +1,7 @@
+performance level: /sys/devices/platform/samsung/performance_level
+wiffies: /sys/devices/platform/samsung/rfkill/rfkill0/state
+blueteeth: /sys/devices/platform/samsung/rfkill/rfkill1/state
+keyboard backlight: /sys/devices/platform/samsung/leds/samsung::kbd_backlight/brightness
+usb: /sys/devices/platform/samsung/usb_charge
+
+
