@@ -40,7 +40,6 @@ def setup_links(lf):
     fc = map(str.strip, io.open(lf, 'r', encoding="utf-8").readlines())
     lts = list(filter(lambda _: _ != ("/dev/null", "/dev/null"), map(get_paths, fc)))
     list(map(setup_link, lts))
-    list(map(lambda _: logger(_[0]), lts))
     return lts
 
 
@@ -61,8 +60,15 @@ def sig_handler(signum, frame):
 def global_setup():
     global _links
     global _symlinks
+    global _am
 
-    _symlinks = setup_links(_links)
+    syms = setup_links(_links)
+    _symlinks = syms
+
+    _am = act.generate_actions(syms)
+
+    list(map(print, _am))
+
 
 
 def global_cleanup():
@@ -97,7 +103,7 @@ def main():
         conn, _ = _sock.accept()
         try:
             data = conn.recv(4096)
-            c = tuple(data.decode('utf-8').split())
+            c = ' '.join(data.decode('utf-8').split())
             res = get_action(_am, c)()
             conn.send(bytes(res.encode('utf-8')))
             logger("recv: {}, send: {}".format(repr(c), repr(res)))
@@ -112,18 +118,7 @@ _serv = "./samsung_ctl"
 _links = "./links"
 _symlinks = []
 logger = print
-
-
-"""
-Command format: {get, set, cyc} {_ in ux} ["set" parameter]
-"""
-_am = {
-        k:v for k, v in chain(
-            ((("get", _), p(act.get_current_value, c=_)) for _ in act.ux)
-            , ((("cyc", _), p(act.cycle_value, c=_)) for _ in act.ux)
-            , ((("set", _, __), p(act.update_value, c=_, v=__)) for _ in act.ux for __ in act.get_control_values(_))
-        )
-}
+_am = {}
 
 if __name__ == "__main__":
     main()
