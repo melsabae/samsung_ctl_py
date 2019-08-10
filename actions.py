@@ -2,38 +2,62 @@
 
 import io
 from itertools import chain
-from sys import argv, exc_info
-from functools import partial as p
+from functools import partial as partial_apply
 
 
 _controls = {
-        "cpu": ["silent", "normal", "overclock"],
-        "usb": ["0", "1"],
-        "wifi": ["on", "off"],
-        "bt": ["on", "off"],
-        }
+    "cpu": ["silent", "normal", "overclock"],
+    "usb": ["0", "1"],
+    "wifi": ["on", "off"],
+    "bt": ["on", "off"],
+}
 
 
-def nullary_nullity():
-    pass
+def _get_next_in_cycle(l: [str], v: str) -> str:
+    return l[(l.index(v) + 1) % len(l)]
+
+
+def _get_current_value(fp: str) -> str:
+    # TODO: for controls that do not have files or cannot find
+    #  push this function's decisions into a new function that returns the proper action
+    #  and keep the return as a string
+    return io.open(fp, "r").readline().strip()
+
+
+def _update_value(fp: str, v: str) -> bool:
+    # TODO: for controls that do not have files or cannot find
+    #  push this function's decisions into a new function that returns the proper action
+    #  and keep the return as a string
+    return v if io.open(fp, "w").write(v) == len(v) else repr(False)
+
+
+def _cycle_value(fp: str, c: str) -> bool:
+    return  _update_value(fp, _get_next_in_cycle(_controls[c], _get_current_value(fp)))
+
+
+def _nullary_nullity(s):
+    return "invalid command: {}".format(s)
 
 
 def _generate_control_action(fp, s):
     ss = str.split(s, " ")
 
     if "get" == ss[0]:
-        return p(get_current_value, c=fp)
+        return partial_apply(_get_current_value, fp=fp)
 
     if "set" == ss[0]:
-        return p(update_value, c=fp, v=ss[2])
+        return partial_apply(_update_value, fp=fp, v=ss[2])
 
     if "cyc" == ss[0]:
-        return p(cycle_value, c=fp)
+        return partial_apply(_cycle_value, fp=fp, c=ss[1])
 
-    return nullary_nullity
+    return partial_apply(_nullary_nullity, s=s)
 
 
 def _generate_control_actions(fp, control):
+    if control not in _controls:
+        return []
+
     l = chain.from_iterable([
         ["get {}".format(control), "cyc {}".format(control)]
         , map(lambda _: "set {} {}".format(control, _), _controls[control])
@@ -42,34 +66,7 @@ def _generate_control_actions(fp, control):
     return map(lambda _: (_, _generate_control_action(fp, _)), l)
 
 
-def generate_actions(links):
-    # TODO: turn links into a map (or be a sane person and make a map as an argument??)
-    control_actions = map(lambda _: _generate_control_actions(_[0], _[0]), links)
+def generate_actions(file_paths):
+    control_actions = map(lambda _: _generate_control_actions(file_paths[_], _), file_paths)
     return dict(chain.from_iterable(control_actions))
-
-
-def _get_next_in_cycle(l: [str], c: str) -> str:
-    return l[(l.index(c) + 1) % len(l)]
-
-
-def get_control_values(c: str) -> [str]:
-    return _controls[c]
-
-
-def get_current_value(c: str) -> str:
-    # TODO: for controls that do not have files or cannot find
-    #  push this function's decisions into a new function that returns the proper action
-    #  and keep the return as a string
-    return io.open(c, "r").readline().strip()
-
-
-def update_value(c: str, v: str) -> bool:
-    # TODO: for controls that do not have files or cannot find
-    #  push this function's decisions into a new function that returns the proper action
-    #  and keep the return as a string
-    return v if io.open(c, "w").write(v) == len(v) else repr(False)
-
-
-def cycle_value(c: str) -> bool:
-    return  update_value(c, _get_next_in_cycle(get_control_values(c), get_current_value(c)))
 

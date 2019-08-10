@@ -7,9 +7,7 @@ import io
 import os
 import logging
 import signal
-from functools import partial as p
 import actions as act
-from itertools import chain
 
 
 def get_paths(l):
@@ -27,20 +25,10 @@ def get_paths(l):
     return ln, lt
 
 
-def remove_link(n):
-    os.unlink(n) if os.path.exists(n) else {}
-
-
-def setup_link(t):
-    remove_link(t[0])
-    os.symlink(t[1], t[0])
-
-
-def setup_links(lf):
+def get_control_file_paths(lf):
     fc = map(str.strip, io.open(lf, 'r', encoding="utf-8").readlines())
     lts = list(filter(lambda _: _ != ("/dev/null", "/dev/null"), map(get_paths, fc)))
-    list(map(setup_link, lts))
-    return lts
+    return dict(lts)
 
 
 def get_action(m, i):
@@ -59,14 +47,12 @@ def sig_handler(signum, frame):
 
 def global_setup():
     global _links
-    global _symlinks
     global _am
 
-    syms = setup_links(_links)
-    _symlinks = syms
-
+    syms = get_control_file_paths(_links)
     _am = act.generate_actions(syms)
 
+    # this lists every known control to this program, which may be useful in generating scripts/GUIs
     list(map(print, _am))
 
 
@@ -74,11 +60,9 @@ def global_setup():
 def global_cleanup():
     global _serv
     global _sock
-    global _symlinks
 
     _sock.close()
     os.unlink(_serv) if os.path.exists(_serv) else {}
-    list(map(lambda _: remove_link(_[0]), _symlinks))
 
 
 def main():
@@ -116,9 +100,9 @@ def main():
 _sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 _serv = "./samsung_ctl"
 _links = "./links"
-_symlinks = []
 logger = print
 _am = {}
+_file_paths = {}
 
 if __name__ == "__main__":
     main()
