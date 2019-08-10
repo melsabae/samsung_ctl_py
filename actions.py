@@ -33,6 +33,10 @@ ux = {
         }
 
 
+def generate_actions(fps):
+    return {}
+
+
 def _get_file_path(c: str) -> str:
     return _filepaths[ux[c]]
 

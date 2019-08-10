@@ -22,7 +22,7 @@ def get_paths(l):
 
     s = str.split(l, ":")
     ss = list(map(str.strip, s))
-    ln = "./{}".format(ss[0])
+    ln = "{}".format(ss[0])
     lt = "{}".format(ss[1])
     return ln, lt
 
@@ -40,6 +40,7 @@ def setup_links(lf):
     fc = map(str.strip, io.open(lf, 'r', encoding="utf-8").readlines())
     lts = list(filter(lambda _: _ != ("/dev/null", "/dev/null"), map(get_paths, fc)))
     list(map(setup_link, lts))
+    list(map(lambda _: logger(_[0]), lts))
     return lts
 
 
@@ -123,6 +124,7 @@ _am = {
             , ((("set", _, __), p(act.update_value, c=_, v=__)) for _ in act.ux for __ in act.get_control_values(_))
         )
 }
+
 if __name__ == "__main__":
     main()
 
