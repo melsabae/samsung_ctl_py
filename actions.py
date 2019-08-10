@@ -18,16 +18,10 @@ def _get_next_in_cycle(l: [str], v: str) -> str:
 
 
 def _get_current_value(fp: str) -> str:
-    # TODO: for controls that do not have files or cannot find
-    #  push this function's decisions into a new function that returns the proper action
-    #  and keep the return as a string
     return io.open(fp, "r").readline().strip()
 
 
 def _update_value(fp: str, v: str) -> bool:
-    # TODO: for controls that do not have files or cannot find
-    #  push this function's decisions into a new function that returns the proper action
-    #  and keep the return as a string
     return v if io.open(fp, "w").write(v) == len(v) else repr(False)
 
 
