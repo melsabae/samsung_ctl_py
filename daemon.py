@@ -3,6 +3,7 @@
 
 import socket
 import sys
+import io
 import os
 import logging
 import signal
@@ -11,12 +12,35 @@ import actions as act
 from itertools import chain
 
 
-def global_cleanup():
-    global _serv
-    global _sock
+def get_paths(l):
+    if any([
+        False
+        , len(l) is 0 or "#" is l[0]
+        , ":" not in l
+    ]):
+        return ("/dev/null", "/dev/null")
 
-    _sock.close()
-    os.unlink(_serv) if os.path.exists(_serv) else {}
+    s = str.split(l, ":")
+    ss = list(map(str.strip, s))
+    ln = "./{}".format(ss[0])
+    lt = "{}".format(ss[1])
+    return ln, lt
+
+
+def remove_link(n):
+    os.unlink(n) if os.path.exists(n) else {}
+
+
+def setup_link(t):
+    remove_link(t[0])
+    os.symlink(t[1], t[0])
+
+
+def setup_links(lf):
+    fc = map(str.strip, io.open(lf, 'r', encoding="utf-8").readlines())
+    lts = list(filter(lambda _: _ != ("/dev/null", "/dev/null"), map(get_paths, fc)))
+    list(map(setup_link, lts))
+    return lts
 
 
 def get_action(m, i):
@@ -33,10 +57,29 @@ def sig_handler(signum, frame):
     sys.exit(0)
 
 
+def global_setup():
+    global _links
+    global _symlinks
+
+    _symlinks = setup_links(_links)
+
+
+def global_cleanup():
+    global _serv
+    global _sock
+    global _symlinks
+
+    _sock.close()
+    os.unlink(_serv) if os.path.exists(_serv) else {}
+    list(map(lambda _: remove_link(_[0]), _symlinks))
+
+
 def main():
     global _sock
     global _serv
     global _am
+
+    global_setup()
 
     os.unlink(_serv) if os.path.exists(_serv) else {}
 
@@ -65,6 +108,8 @@ def main():
 
 _sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 _serv = "./samsung_ctl"
+_links = "./links"
+_symlinks = []
 logger = print
 
 
