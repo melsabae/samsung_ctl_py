@@ -47,7 +47,10 @@ def main():
     signal.signal(signal.SIGINT, sig_handler)
     signal.signal(signal.SIGTERM, sig_handler)
 
+    prev_mask = os.umask(0o000) # set permissions for socket
     sock.bind(serv)
+    os.umask(prev_mask)
+
     sock.listen()
 
     while True:
