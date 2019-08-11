@@ -46,10 +46,10 @@ def sig_handler(signum, frame):
 
 
 def global_setup():
-    global _links
+    global _paths
     global _am
 
-    syms = get_control_file_paths(_links)
+    syms = get_control_file_paths(_paths)
     _am = act.generate_actions(syms)
 
     # this lists every known control to this program, which may be useful in generating scripts/GUIs
@@ -99,7 +99,7 @@ def main():
 
 _sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 _serv = "./samsung_ctl"
-_links = "./links"
+_paths = "./paths"
 logger = print
 _am = {}
 _file_paths = {}
