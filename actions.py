@@ -17,16 +17,23 @@ def _get_next_in_cycle(l: [str], v: str) -> str:
     return l[(l.index(v) + 1) % len(l)]
 
 
-def _get_current_value(fp: str) -> str:
+def _get_file_value(fp: str) -> str:
     return io.open(fp, "r").readline().strip()
 
 
-def _update_value(fp: str, v: str) -> bool:
-    return v if io.open(fp, "w").write(v) == len(v) else repr(False)
+def _get_current_value(fp: str, c: str) -> str:
+    v = _get_file_value(fp)
+    return "{} {}".format(c, v)
+
+
+def _update_value(fp: str, c: str, v: str) -> bool:
+    s = lambda: "set {} {}".format(c, v)
+    r = lambda: "set {} {} failed".format(c, v)
+    return s() if io.open(fp, "w").write(v) == len(v) else r()
 
 
 def _cycle_value(fp: str, c: str) -> bool:
-    return  _update_value(fp, _get_next_in_cycle(_controls[c], _get_current_value(fp)))
+    return  _update_value(fp, c, _get_next_in_cycle(_controls[c], _get_file_value(fp)))
 
 
 def _nullary_nullity(s):
@@ -37,10 +44,10 @@ def _generate_control_action(fp, s):
     ss = str.split(s, " ")
 
     if "get" == ss[0]:
-        return partial_apply(_get_current_value, fp=fp)
+        return partial_apply(_get_current_value, fp=fp, c=ss[1])
 
     if "set" == ss[0]:
-        return partial_apply(_update_value, fp=fp, v=ss[2])
+        return partial_apply(_update_value, fp=fp, c=ss[1], v=ss[2])
 
     if "cyc" == ss[0]:
         return partial_apply(_cycle_value, fp=fp, c=ss[1])
