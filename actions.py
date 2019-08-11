@@ -8,8 +8,8 @@ from functools import partial as partial_apply
 _controls = {
     "cpu": ["silent", "normal", "overclock"]
     , "usb": ["0", "1"]
-    , "wifi": ["on", "off"]
-    , "bt": ["on", "off"]
+    , "wifi": ["0", "1"]
+    , "bt": ["0", "1"]
 }
 
 

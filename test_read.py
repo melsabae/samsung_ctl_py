@@ -5,14 +5,19 @@ import sys
 import os
 
 serv = "./samsung_ctl"
-sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
 if __name__ == "__main__":
     sys.exit(0) if not os.path.exists(serv) else {}
-    sock.connect(serv)
-    sock.send(bytes("get usb".encode('utf-8')))
-    data = sock.recv(4096)
-    print(data.decode('ascii'))
-    sock.close()
 
+    for _ in ["cpu", "usb", "wifi", "bt"]:
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        sock.connect(serv)
+
+        sock.send(bytes("get {}".format(_).encode('utf-8')))
+        data = sock.recv(4096)
+        sock.close()
+
+        print("{}: {}".format(_, data.decode('ascii')))
+
+    sys.exit(0)
 

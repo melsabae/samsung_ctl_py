@@ -9,11 +9,13 @@ logger = print
 
 
 serv = "./samsung_ctl"
-sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
 if __name__ == "__main__":
-    sock.connect(serv)
-    #sock.send(bytes("get cpu".encode('utf-8')))
-    #sock.send(bytes("set cpu overclock".encode('utf-8')))
-    #sock.send(bytes("cyc cpu".encode('utf-8')))
-    sock.send(bytes("cyc usb".encode('utf-8')))
+    for _ in ["cpu", "bt", "wifi", "usb"]:
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        sock.connect(serv)
+        sock.send(bytes("cyc {}".format(_).encode('utf-8')))
+        sock.recv(4096)
+        sock.close()
+
+    sys.exit(0)
