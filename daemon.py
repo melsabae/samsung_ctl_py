@@ -91,6 +91,9 @@ def main():
             res = get_action(_am, c)()
             conn.send(bytes(res.encode('utf-8')))
             logger("recv: {}, send: {}".format(repr(c), repr(res)))
+
+            if act.action_changed_state(c):
+                print("we need to update the clients")
         finally:
             conn.close()
 

@@ -56,15 +56,26 @@ def _generate_control_action(fp, s):
 
 
 def _generate_control_actions(fp, control):
+    l = _generate_command_list(fp, control)
+    return map(lambda _: (_, _generate_control_action(fp, _)), l)
+
+
+def action_changed_state(s: str):
+    return any("{} ".format(_) in s for _ in ["set", "cyc"])
+
+
+def get_getters(commands):
+    return list(filter(lambda _: "get " in _, commands))
+
+
+def _generate_command_list(fp, control):
     if control not in _controls:
         return []
 
-    l = chain.from_iterable([
+    return chain.from_iterable([
         ["get {}".format(control), "cyc {}".format(control)]
         , map(lambda _: "set {} {}".format(control, _), _controls[control])
     ])
-
-    return map(lambda _: (_, _generate_control_action(fp, _)), l)
 
 
 def generate_actions(file_paths):
