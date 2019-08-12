@@ -64,8 +64,8 @@ def action_changed_state(s: str):
     return any("{} ".format(_) in s for _ in ["set", "cyc"])
 
 
-def get_getters(commands):
-    return list(filter(lambda _: "get " in _, commands))
+def get_controls():
+    return _controls.keys()
 
 
 def _generate_command_list(fp, control):

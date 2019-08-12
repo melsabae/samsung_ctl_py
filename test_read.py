@@ -9,7 +9,7 @@ serv = "./samsung_ctl"
 if __name__ == "__main__":
     sys.exit(0) if not os.path.exists(serv) else {}
 
-    for _ in ["cpu", "usb", "wifi", "bt"]:
+    for _ in ["cpu", "usb", "wifi", "bt", "commands", "controls"]:
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         sock.connect(serv)
 

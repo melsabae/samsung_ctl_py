@@ -10,6 +10,9 @@ import signal
 import actions as act
 
 
+INVALID_COMMAND_RESPONSE = "NACK"
+
+
 def get_paths(l):
     if any([
         False
@@ -32,7 +35,20 @@ def get_control_file_paths(lf):
 
 
 def get_action(m, i):
-    return m[i] if i in m else lambda: "NACK"
+    return m[i] if i in m else lambda: INVALID_COMMAND_RESPONSE
+
+
+def response_is_valid(c):
+    return c != INVALID_COMMAND_RESPONSE
+
+
+def get_meta_commands():
+    global _am
+
+    return {
+        "get commands": lambda: "{}".format(', '.join(_ for _ in _am))
+        , "get controls": lambda: "{}".format(', '.join(_ for _ in act.get_controls()))
+    }
 
 
 def sig_handler(signum, frame):
@@ -51,6 +67,8 @@ def global_setup():
 
     syms = get_control_file_paths(_paths)
     _am = act.generate_actions(syms)
+
+    _am.update(get_meta_commands())
 
     # this lists every known control to this program, which may be useful in generating scripts/GUIs
     list(map(print, _am))
@@ -92,8 +110,9 @@ def main():
             conn.send(bytes(res.encode('utf-8')))
             logger("recv: {}, send: {}".format(repr(c), repr(res)))
 
-            if act.action_changed_state(c):
+            if response_is_valid(c) and act.action_changed_state(c):
                 print("we need to update the clients")
+
         finally:
             conn.close()
 
