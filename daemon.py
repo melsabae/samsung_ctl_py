@@ -30,7 +30,7 @@ def get_paths(l):
 
 def get_control_file_paths(lf):
     fc = map(str.strip, io.open(lf, 'r', encoding="utf-8").readlines())
-    lts = list(filter(lambda _: _ != ("/dev/null", "/dev/null"), map(get_paths, fc)))
+    lts = filter(lambda _: _ != ("/dev/null", "/dev/null"), map(get_paths, fc))
     return dict(lts)
 
 
